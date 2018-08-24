@@ -37,7 +37,8 @@
     "bluebird": "^2.10.2",
     "body-parser": "^1.15.2",
     "lodash.defaults": "^4.2.0",
-    "numbered": "^1.0.0"
+    "numbered": "^1.0.0",
+    "ramda": "^0.25.0"
   },
   "devDependencies": {
     "@types/chai": "^4.0.4",

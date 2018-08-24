@@ -1,5 +1,5 @@
 "use strict";
-
+var R = require("ramda");
 var Promise = require("bluebird");
 var AlexaUtterances = require("alexa-utterances");
 var SSML = require("./lib/to-ssml");
@@ -8,6 +8,8 @@ var defaults = require("lodash.defaults");
 var verifier = require("alexa-verifier-middleware");
 var bodyParser = require('body-parser');
 var normalizeApiPath = require('./lib/normalize-api-path');
+
+const removeSpaces = R.replace(/^\s+|\s+$|\s+(?=\s)/g, '');
 
 alexa.response = function(session) {
   var self = this;
@@ -678,9 +680,10 @@ alexa.app = function(name) {
             self.dictionary,
             self.exhaustiveUtterances);
           list.forEach(function(utterance) {
-            intentSchema.samples.push(utterance);
+            intentSchema.samples.push(removeSpaces(utterance));
           });
         });
+        intentSchema.samples = R.uniq(intentSchema.samples).sort();
       }
       if (intent.slots && Object.keys(intent.slots).length > 0) {
         intentSchema["slots"] = [];
@@ -697,14 +700,14 @@ alexa.app = function(name) {
                 self.exhaustiveUtterances
               );
               list.forEach(function(utterance) {
-                samples.push(utterance);
+                samples.push(removeSpaces(utterance));
               });
             });
           }
           intentSchema.slots.push({
             name: key,
             type,
-            samples
+            samples: R.uniq(samples).sort()
           });
         }
       }
