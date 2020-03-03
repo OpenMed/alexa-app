@@ -7,7 +7,7 @@ chai.use(chaiAsPromised);
 var expect = chai.expect;
 chai.config.includeStack = true;
 
-import * as Alexa from '..'
+import * as Alexa from '..';
 
 describe("Alexa", function() {
   describe("app", function() {
@@ -19,18 +19,18 @@ describe("Alexa", function() {
 
     describe("#request", function() {
       describe("response", function() {
-        var mockRequest = mockHelper.load("display_element_selected_request.json");
+        var mockRequest = mockHelper.load("intent_request_launch.json");
 
-        context("with a request of Display.ElementSelected", function() {
-          context("with no displayElementSelected handler", function() {
+        context("with an intent request of launchIntent", function() {
+          context("with no launch handler", function() {
             describe("outputSpeech", function() {
-              it("responds with NO_DISPLAY_ELEMENT_SELECTED message", function() {
+              it("responds with NO_LAUNCH_FUNCTION message", function() {
                 var subject = testApp.request(mockRequest).then(function(response) {
                   return response.response.outputSpeech;
                 });
 
                 return expect(subject).to.eventually.become({
-                  ssml: "<speak>" + testApp.messages.NO_DISPLAY_ELEMENT_SELECTED_FUNCTION + "</speak>",
+                  ssml: "<speak>" + testApp.messages.NO_LAUNCH_FUNCTION + "</speak>",
                   type: "SSML"
                 });
               });
@@ -43,7 +43,7 @@ describe("Alexa", function() {
             describe("outputSpeech", function() {
 
               it("handles reprompting correctly", function() {
-                testApp.displayElementSelected(function(req, res) {
+                testApp.launch(function(req, res) {
                   res.say(expectedMessage).say(expectedMessage).reprompt(expectedReprompt);
                 });
 
@@ -58,7 +58,7 @@ describe("Alexa", function() {
               });
 
               it("combines multiple reprompts?", function() {
-                testApp.displayElementSelected(function(req, res) {
+                testApp.launch(function(req, res) {
                   res.say(expectedMessage)
                     .reprompt(expectedReprompt)
                     .reprompt(expectedReprompt);
@@ -69,13 +69,13 @@ describe("Alexa", function() {
                 });
 
                 return expect(subject).to.eventually.become({
-                  ssml: "<speak>" + expectedReprompt + "</speak>",
+                  ssml: "<speak>" + expectedReprompt + " " + expectedReprompt + "</speak>",
                   type: "SSML"
                 });
               });
 
               it("combines says into a larger response", function() {
-                testApp.displayElementSelected(function(req, res) {
+                testApp.launch(function(req, res) {
                   res.say(expectedMessage).say(expectedMessage);
                 });
 
@@ -90,7 +90,7 @@ describe("Alexa", function() {
               });
 
               it("responds with expected message", function() {
-                testApp.displayElementSelected(function(req, res) {
+                testApp.launch(function(req, res) {
                   res.say(expectedMessage);
                 });
 
@@ -105,7 +105,7 @@ describe("Alexa", function() {
               });
 
               it("responds with expected message for promise", function() {
-                testApp.displayElementSelected(function(req, res) {
+                testApp.launch(function(req, res) {
                   return Promise.resolve().then(function() {
                     res.say(expectedMessage);
                   });
@@ -122,7 +122,7 @@ describe("Alexa", function() {
               });
 
               it("handles error for promise", function() {
-                testApp.displayElementSelected(function(req, res) {
+                testApp.launch(function(req, res) {
                   return Promise.reject(new Error("promise failure"));
                 });
 
@@ -131,20 +131,6 @@ describe("Alexa", function() {
                 return expect(subject).to.be.rejectedWith("promise failure");
               });
             });
-
-            describe("requestToken", function() {
-              it("handles reprompting correctly", function() {
-                testApp.displayElementSelected(function(req, res) {
-                  expect(req.selectedElementToken).to.equal(mockRequest.request.token)
-                  expect(req.context.Display.token).to.equal(mockRequest.context.Display.token)
-                  res.say(expectedMessage).say(expectedMessage).reprompt(expectedReprompt);
-                });
-
-                var subject = testApp.request(mockRequest).then(function(response) {
-                  return response.response.outputSpeech;
-                });
-              });
-            })
           });
         });
       });
