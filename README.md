@@ -15,6 +15,7 @@
     * [slot](#slot)
     * [slotResolution](#slotResolution)
     * [resolutionValue](#resolutionValue)
+    * [router](#router)
 * [Request Handlers](#request-handlers)
     * [LaunchRequest](#launchrequest)
     * [IntentRequest](#intentrequest)
@@ -55,7 +56,7 @@ A Node module to simplify the development of Alexa skills (applications.)
 
 ## Stable Release
 
-You're reading the documentation for the next release of alexa-app, which should be 4.2.3. Please see [CHANGELOG](CHANGELOG.md) and make sure to read [UPGRADING](UPGRADING.md) when upgrading from a previous version. The current stable release is [4.2.2](https://github.com/alexa-js/alexa-app/tree/v4.2.2).
+You're reading the documentation for the next release of alexa-app, which should be 5.0.0. Please see [CHANGELOG](CHANGELOG.md) and make sure to read [UPGRADING](UPGRADING.md) when upgrading from a previous version. The current stable release is [4.2.3](https://github.com/alexa-js/alexa-app/tree/v4.2.3).
 
 ## Introduction
 
@@ -185,6 +186,9 @@ Boolean request.hasSession()
 
 // return the session object
 Session request.getSession()
+
+// return the router object
+Router request.getRouter()
 
 // return the request context
 request.context
@@ -328,6 +332,34 @@ String session.get(String attributeName)
 session.details = { ... }
 ```
 
+### router
+```javascript
+// get router object
+// every method of the router returns a promise, so you can chain them or just return it back to alexa-app
+var router = request.getRouter()
+
+// route request to 'MySuperIntent' intent handler
+Promise router.intent('MySuperIntent')
+
+// route request to Launch handler
+Promise router.launch()
+
+// route request to session ended handler
+Promise router.sessionEnded()
+
+// route request to audio player handler
+Promise router.audioPlayer('PlaybackNearlyFinished')
+
+// route request to playback controller handler
+Promise router.playbackController('NextCommandIssued')
+
+// route request to display element selected handler
+Promise router.displayElementSelected()
+
+// route request to custom handler
+Promise router.custom('CrazyCustomEvent')
+```
+
 ### slot
 ```javascript
 // get the slot object
@@ -379,6 +411,8 @@ String resolutionValue.id
 ## Request Handlers
 
 Your app can define a single handler for the `Launch` event and the `SessionEnded` event, and multiple intent handlers.
+
+For switching intents, redirecting from one handler to other and other routing tasks you can use [router](#router).
 
 ### LaunchRequest
 
@@ -490,6 +524,11 @@ You can define handlers for the following events:
 * PlaybackStopped
 * PlaybackNearlyFinished
 * PlaybackFailed
+
+> Please note:
+> * `PlaybackStarted` and `PlaybackFinished` accept only `Stop` or `ClearQueue` directive in response.
+> * `PlaybackStopped` does not accept any response.
+> * `PlaybackNearlyFinished` and `PlaybackFailed` accept any AudioPlayer directive in response.
 
 Read more about AudioPlayer request types in [AudioPlayer Interface Doc](https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/custom-audioplayer-interface-reference#audioplayer-requests).
 
@@ -632,10 +671,10 @@ app.intent("sampleIntent", {
       "AGE": "AMAZON.NUMBER",
       "CITY": {
          "type": "AMAZON.US_CITY",
+         "samples": ['I live in {-|CITY}', '{in|at|near|} {-|CITY}'],
          "elicitationPrompts": [
           "Oh I forgot to ask you, in which city do you live ?",
          ],
-         "samples": ['I live in {-|CITY}', '{in|at|near|} {-|CITY}'],
          "confirmationPrompts": ['Ok so you live in {CITY} right ?'],
       }
     },

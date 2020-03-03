@@ -38,11 +38,7 @@ describe("Alexa", function() {
 
         it("reponds with expected context applicationId", function() {
           return testApp.request(mockRequest).then(function(response) {
-            expect(reqObject.context).to
-              .have.deep.property(
-                "System.application.applicationId",
-                "amzn1.echo-sdk-ams.app.000000-d0ed-0000-ad00-000000d00ebe"
-              );
+            expect(reqObject.context.System.application.applicationId).to.equal('amzn1.echo-sdk-ams.app.000000-d0ed-0000-ad00-000000d00ebe');
           });
         });
 
@@ -568,6 +564,32 @@ describe("Alexa", function() {
         return Promise.all([
           expect(subject).to.eventually.become({
             "foo": "bar"
+          })
+        ]);
+      });
+    });
+
+    describe("update session in post()", function() {
+      var mockRequest = mockHelper.load("intent_request_malformed_session.json");
+
+      it("responds with updated session object", function() {
+        testApp.pre = function(req) {
+          if (req.hasSession()) {
+            req.getSession().set("foo", "bar");
+          }
+        };
+        testApp.post = function(req) {
+          if (req.hasSession()) {
+            req.getSession().set("foo", "big_bar");
+          }
+        };
+        var subject = testApp.request(mockRequest).then(function(response) {
+          return response.sessionAttributes;
+        });
+
+        return Promise.all([
+          expect(subject).to.eventually.become({
+            "foo": "big_bar"
           })
         ]);
       });

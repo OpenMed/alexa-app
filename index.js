@@ -1,11 +1,10 @@
-"use strict";
+'use strict';
 
-var Promise = require("bluebird");
-var AlexaUtterances = require("alexa-utterances");
-var SSML = require("./lib/to-ssml");
+var AlexaUtterances = require('alexa-utterances');
+var SSML = require('./lib/to-ssml');
 var alexa = {};
-var defaults = require("lodash.defaults");
-var verifier = require("alexa-verifier-middleware");
+var defaults = require('lodash.defaults');
+var verifier = require('alexa-verifier-middleware');
 var bodyParser = require('body-parser');
 var normalizeApiPath = require('./lib/normalize-api-path');
 
@@ -13,17 +12,17 @@ alexa.response = function(session) {
   var self = this;
   this.resolved = false;
   this.response = {
-    "version": "1.0",
-    "response": {
-      "directives": [],
-      "shouldEndSession": true
+    'version': '1.0',
+    'response': {
+      'directives': [],
+      'shouldEndSession': true
     }
   };
   this.say = function(str) {
-    if (typeof this.response.response.outputSpeech == "undefined") {
+    if (typeof this.response.response.outputSpeech == 'undefined') {
       this.response.response.outputSpeech = {
-        "type": "SSML",
-        "ssml": SSML.fromStr(str)
+        'type': 'SSML',
+        'ssml': SSML.fromStr(str)
       };
     } else {
       // append str to the current outputSpeech, stripping the out speak tag
@@ -33,17 +32,17 @@ alexa.response = function(session) {
   };
   this.clear = function( /*str*/ ) {
     this.response.response.outputSpeech = {
-      "type": "SSML",
-      "ssml": SSML.fromStr("")
+      'type': 'SSML',
+      'ssml': SSML.fromStr('')
     };
     return this;
   };
   this.reprompt = function(str) {
-    if (typeof this.response.response.reprompt == "undefined") {
+    if (typeof this.response.response.reprompt == 'undefined') {
       this.response.response.reprompt = {
-        "outputSpeech": {
-          "type": "SSML",
-          "ssml": SSML.fromStr(str)
+        'outputSpeech': {
+          'type': 'SSML',
+          'ssml': SSML.fromStr(str)
         }
       };
     } else {
@@ -55,7 +54,7 @@ alexa.response = function(session) {
   this.card = function(oCard) {
     if (2 == arguments.length) { // backwards compat
       oCard = {
-        type: "Simple",
+        type: 'Simple',
         title: arguments[0],
         content: arguments[1]
       };
@@ -65,23 +64,23 @@ alexa.response = function(session) {
       clenseAttrs = [];
 
     switch (oCard.type) {
-      case 'Simple':
-        requiredAttrs.push('content');
-        clenseAttrs.push('content');
-        break;
-      case 'Standard':
-        requiredAttrs.push('text');
-        clenseAttrs.push('text');
-        if (('image' in oCard) && (!('smallImageUrl' in oCard['image']) && !('largeImageUrl' in oCard['image']))) {
-          console.error('If card.image is defined, must specify at least smallImageUrl or largeImageUrl');
-          return this;
-        }
-        break;
-      case 'AskForPermissionsConsent':
-        requiredAttrs.push('permissions');
-        break;
-      default:
-        break;
+    case 'Simple':
+      requiredAttrs.push('content');
+      clenseAttrs.push('content');
+      break;
+    case 'Standard':
+      requiredAttrs.push('text');
+      clenseAttrs.push('text');
+      if (('image' in oCard) && (!('smallImageUrl' in oCard['image']) && !('largeImageUrl' in oCard['image']))) {
+        console.error('If card.image is defined, must specify at least smallImageUrl or largeImageUrl');
+        return this;
+      }
+      break;
+    case 'AskForPermissionsConsent':
+      requiredAttrs.push('permissions');
+      break;
+    default:
+      break;
     }
 
     var hasAllReq = requiredAttrs.every(function(idx) {
@@ -107,12 +106,12 @@ alexa.response = function(session) {
   };
   this.linkAccount = function() {
     this.response.response.card = {
-      "type": "LinkAccount"
+      'type': 'LinkAccount'
     };
     return this;
   };
   this.shouldEndSession = function(bool, reprompt) {
-    if (bool === null || typeof bool == "undefined") {
+    if (bool === null || typeof bool == 'undefined') {
       delete this.response.response.shouldEndSession;
     } else {
       this.response.response.shouldEndSession = bool;
@@ -132,30 +131,30 @@ alexa.response = function(session) {
   };
   this.audioPlayerPlay = function(playBehavior, audioItem) {
     var audioPlayerDirective = {
-      "type": "AudioPlayer.Play",
-      "playBehavior": playBehavior,
-      "audioItem": audioItem
+      'type': 'AudioPlayer.Play',
+      'playBehavior': playBehavior,
+      'audioItem': audioItem
     };
     this.directive(audioPlayerDirective);
     return this;
   };
   this.audioPlayerPlayStream = function(playBehavior, stream) {
     var audioItem = {
-      "stream": stream
+      'stream': stream
     };
     return this.audioPlayerPlay(playBehavior, audioItem);
   };
   this.audioPlayerStop = function() {
     var audioPlayerDirective = {
-      "type": "AudioPlayer.Stop"
+      'type': 'AudioPlayer.Stop'
     };
     this.directive(audioPlayerDirective);
     return this;
   };
   this.audioPlayerClearQueue = function(clearBehavior) {
     var audioPlayerDirective = {
-      "type": "AudioPlayer.ClearQueue",
-      "clearBehavior": clearBehavior || "CLEAR_ALL"
+      'type': 'AudioPlayer.ClearQueue',
+      'clearBehavior': clearBehavior || 'CLEAR_ALL'
     };
     this.directive(audioPlayerDirective);
     return this;
@@ -173,7 +172,7 @@ alexa.response = function(session) {
   // legacy code below
   // @deprecated
   this.session = function(key, val) {
-    if (typeof val == "undefined") {
+    if (typeof val == 'undefined') {
       return this.sessionObject.get(key);
     } else {
       this.sessionObject.set(key, val);
@@ -220,18 +219,18 @@ alexa.request = function(json) {
   };
   this.type = function() {
     if (!(this.data && this.data.request && this.data.request.type)) {
-      console.error("missing request type:", this.data);
+      console.error('missing request type:', this.data);
       return;
     }
     return this.data.request.type;
   };
   this.isAudioPlayer = function() {
     var requestType = this.type();
-    return (requestType && 0 === requestType.indexOf("AudioPlayer."));
+    return (requestType && 0 === requestType.indexOf('AudioPlayer.'));
   };
   this.isPlaybackController = function() {
     var requestType = this.type();
-    return (requestType && 0 === requestType.indexOf("PlaybackController."));
+    return (requestType && 0 === requestType.indexOf('PlaybackController.'));
   };
 
   if (this.data.request && this.data.request.intent) {
@@ -265,7 +264,7 @@ alexa.request = function(json) {
   };
 
   this.getDialog = function() {
-    var dialogState = (typeof this.data.request['dialogState'] !== "undefined") ?
+    var dialogState = (typeof this.data.request['dialogState'] !== 'undefined') ?
       this.data.request['dialogState'] : null;
     return new alexa.dialog(dialogState);
   };
@@ -300,7 +299,7 @@ alexa.dialog = function(dialogState) {
 
   this.handleDialogDelegation = function(request, response) {
     var dialogDirective = {
-      "type": "Dialog.Delegate"
+      'type': 'Dialog.Delegate'
     };
     response.shouldEndSession(false).directive(dialogDirective).send();
   };
@@ -309,13 +308,13 @@ alexa.dialog = function(dialogState) {
 alexa.intent = function(name, schema, handler) {
   this.name = name;
   this.handler = handler;
-  this.dialog = (schema && typeof schema.dialog !== "undefined") ? schema.dialog : {};
-  this.slots = (schema && typeof schema["slots"] !== "undefined") ? schema["slots"] : null;
-  this.utterances = (schema && typeof schema["utterances"] !== "undefined") ? schema["utterances"] : null;
-  this.prompts = schema && typeof schema["prompts"] !== "undefined" ? schema["prompts"] : null;
+  this.dialog = (schema && typeof schema.dialog !== 'undefined') ? schema.dialog : {};
+  this.slots = (schema && typeof schema['slots'] !== 'undefined') ? schema['slots'] : null;
+  this.utterances = (schema && typeof schema['utterances'] !== 'undefined') ? schema['utterances'] : null;
+  this.prompts = schema && typeof schema['prompts'] !== 'undefined' ? schema['prompts'] : null;
 
   this.isDelegatedDialog = function() {
-    return this.dialog.type === "delegate";
+    return this.dialog.type === 'delegate';
   };
 };
 
@@ -360,7 +359,7 @@ alexa.resolutionValue = function(value) {
 };
 
 alexa.session = function(session) {
-  var isAvailable = (typeof session != "undefined");
+  var isAvailable = (typeof session != 'undefined');
   this.isAvailable = function() {
     return isAvailable;
   };
@@ -377,8 +376,8 @@ alexa.session = function(session) {
       this.attributes[key] = value;
     };
     this.clear = function(key) {
-      if (typeof key == "string") {
-        if (typeof this.attributes[key] != "undefined") {
+      if (typeof key == 'string') {
+        if (typeof this.attributes[key] != 'undefined') {
           delete this.attributes[key];
         }
       } else {
@@ -399,7 +398,7 @@ alexa.session = function(session) {
     this.sessionId = session.sessionId;
   } else {
     this.isNew = this.get = this.set = this.clear = function() {
-      throw "NO_SESSION";
+      throw 'NO_SESSION';
     };
     this.details = {};
     this.attributes = {};
@@ -412,31 +411,85 @@ alexa.session = function(session) {
   };
 };
 
+alexa.router = function(app, request, response, request_json) {
+  this.intent = function(intent) {
+    if (typeof app.intents[intent] !== 'undefined' && typeof app.intents[intent].handler === 'function') {
+      if (app.intents[intent].isDelegatedDialog() && !request.getDialog().isCompleted()) {
+        return Promise.resolve(request.getDialog().handleDialogDelegation(request, response));
+      } else {
+        return Promise.resolve(app.intents[intent].handler(request, response));
+      }
+    } else {
+      throw 'NO_INTENT_FOUND';
+    }
+  };
+  this.launch = function() {
+    if (typeof app.launchFunc === 'function') {
+      return Promise.resolve(app.launchFunc(request, response));
+    } else {
+      throw 'NO_LAUNCH_FUNCTION';
+    }
+  };
+  this.sessionEnded = function() {
+    if (typeof app.sessionEndedFunc === 'function') {
+      return Promise.resolve(app.sessionEndedFunc(request, response));
+    }
+  };
+  this.audioPlayer = function(event) {
+    var eventHandlerObject = app.audioPlayerEventHandlers[event];
+    if (typeof eventHandlerObject !== 'undefined' && typeof eventHandlerObject['function'] === 'function') {
+      return Promise.resolve(eventHandlerObject['function'](request, response));
+    }
+  };
+  this.playbackController = function(event) {
+    var playbackEventHandlerObject = app.playbackControllerEventHandlers[event];
+    if (typeof playbackEventHandlerObject !== 'undefined' && typeof playbackEventHandlerObject['function'] === 'function') {
+      return Promise.resolve(playbackEventHandlerObject['function'](request, response));
+    }
+  };
+  this.displayElementSelected = function() {
+    if (typeof app.displayElementSelectedFunc === 'function') {
+      return Promise.resolve(app.displayElementSelectedFunc(request, response));
+    } else {
+      throw 'NO_DISPLAY_ELEMENT_SELECTED_FUNCTION';
+    }
+  };
+  this.custom = function(requestType) {
+    if (typeof app.requestHandlers[requestType] === 'function') {
+      return Promise.resolve(app.requestHandlers[requestType](request, response, request_json));
+    } else {
+      throw 'NO_CUSTOM_REQUEST_HANDLER';
+    }
+  };
+};
+
 alexa.apps = {};
 
 alexa.app = function(name) {
   if (!(this instanceof alexa.app)) {
-    throw new Error("Function must be called with the new keyword");
+    throw new Error('Function must be called with the new keyword');
   }
 
   var self = this;
   this.name = name;
   this.messages = {
     // when an intent was passed in that the application was not configured to handle
-    "NO_INTENT_FOUND": "Sorry, the application didn't know what to do with that intent",
+    'NO_INTENT_FOUND': 'Sorry, the application didn\'t know what to do with that intent',
     // when an AudioPlayer event was passed in that the application was not configured to handle
-    "NO_AUDIO_PLAYER_EVENT_HANDLER_FOUND": "Sorry, the application didn't know what to do with that AudioPlayer event",
+    'NO_AUDIO_PLAYER_EVENT_HANDLER_FOUND': 'Sorry, the application didn\'t know what to do with that AudioPlayer event',
     // when the app was used with 'open' or 'launch' but no launch handler was defined
-    "NO_LAUNCH_FUNCTION": "Try telling the application what to do instead of opening it",
+    'NO_LAUNCH_FUNCTION': 'Try telling the application what to do instead of opening it',
     // when a request type was not recognized
-    "INVALID_REQUEST_TYPE": "Error: not a valid request",
+    'INVALID_REQUEST_TYPE': 'Error: not a valid request',
+    // when a request was routed to custom handler, but no such handler was defined
+    'NO_CUSTOM_REQUEST_HANDLER': 'Error: no custom request handler found',
     // when a request and response don't contain session object
     // https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/alexa-skills-kit-interface-reference#request-body-parameters
-    "NO_SESSION": "This request doesn't support session attributes",
+    'NO_SESSION': 'This request doesn\'t support session attributes',
     // if some other exception happens
-    "GENERIC_ERROR": "Sorry, the application encountered an error",
+    'GENERIC_ERROR': 'Sorry, the application encountered an error',
     // User interacted with the display but no element selected handler has been defined.
-    "NO_DISPLAY_ELEMENT_SELECTED_FUNCTION": "Try telling the application how to handle display events. Make sure displayElementSelected is implemented."
+    'NO_DISPLAY_ELEMENT_SELECTED_FUNCTION': 'Try telling the application how to handle display events. Make sure displayElementSelected is implemented.'
   };
 
   // persist session variables from every request into every response
@@ -456,7 +509,7 @@ alexa.app = function(name) {
   this.dictionary = {};
   this.intents = {};
   this.intent = function(intentName, schema, func) {
-    if (typeof schema === "function") {
+    if (typeof schema === 'function') {
       func = schema;
       schema = {};
     }
@@ -474,7 +527,7 @@ alexa.app = function(name) {
 
     values.forEach(function(value) {
       var valueObj;
-      if (typeof value === "string") {
+      if (typeof value === 'string') {
         valueObj = {
           value: value,
           id: null,
@@ -505,15 +558,15 @@ alexa.app = function(name) {
   this.audioPlayerEventHandlers = {};
   this.audioPlayer = function(eventName, func) {
     self.audioPlayerEventHandlers[eventName] = {
-      "name": eventName,
-      "function": func
+      'name': eventName,
+      'function': func
     };
   };
   this.playbackControllerEventHandlers = {};
   this.playbackController = function(eventName, func) {
     self.playbackControllerEventHandlers[eventName] = {
-      "name": eventName,
-      "function": func
+      'name': eventName,
+      'function': func
     };
   };
   this.launchFunc = null;
@@ -531,19 +584,24 @@ alexa.app = function(name) {
   this.request = function(request_json) {
     var request = new alexa.request(request_json);
     var response = new alexa.response(request.getSession());
+    var router = new alexa.router(self, request, response, request_json);
     var postExecuted = false;
     var requestType = request.type();
     var promiseChain = Promise.resolve();
 
+    request.getRouter = function() {
+      return router;
+    };
     // attach Promise resolve/reject functions to the response object
     response.send = function(exception) {
       response.prepare();
       var postPromise = Promise.resolve();
-      if (typeof self.post == "function" && !postExecuted) {
+      if (typeof self.post == 'function' && !postExecuted) {
         postExecuted = true;
         postPromise = Promise.resolve(self.post(request, response, requestType, exception));
       }
       return postPromise.then(function() {
+        response.prepare();
         if (!response.resolved) {
           response.resolved = true;
         }
@@ -553,11 +611,12 @@ alexa.app = function(name) {
     response.fail = function(msg, exception) {
       response.prepare();
       var postPromise = Promise.resolve();
-      if (typeof self.post == "function" && !postExecuted) {
+      if (typeof self.post == 'function' && !postExecuted) {
         postExecuted = true;
         postPromise = Promise.resolve(self.post(request, response, requestType, exception));
       }
       return postPromise.then(function() {
+        response.prepare();
         if (!response.resolved) {
           response.resolved = true;
           throw msg;
@@ -568,67 +627,43 @@ alexa.app = function(name) {
     };
 
     return promiseChain.then(function() {
-        // Call to `.pre` can also throw, so we wrap it in a promise here to
-        // propagate errors to the error handler
-        var prePromise = Promise.resolve();
-        if (typeof self.pre == "function") {
-          prePromise = Promise.resolve(self.pre(request, response, requestType));
+      // Call to `.pre` can also throw, so we wrap it in a promise here to
+      // propagate errors to the error handler
+      var prePromise = Promise.resolve();
+      if (typeof self.pre == 'function') {
+        prePromise = Promise.resolve(self.pre(request, response, requestType));
+      }
+      return prePromise;
+    }).then(function() {
+      requestType = request.type();
+      if (!response.resolved) {
+        if ('IntentRequest' === requestType) {
+          var intent = request_json.request.intent.name;
+          return request.getRouter().intent(intent);
+        } else if ('LaunchRequest' === requestType) {
+          return request.getRouter().launch();
+        } else if ('SessionEndedRequest' === requestType) {
+          return request.getRouter().sessionEnded();
+        } else if (request.isAudioPlayer()) {
+          var event = requestType.slice(12);
+          return request.getRouter().audioPlayer(event);
+        } else if (request.isPlaybackController()) {
+          var playbackControllerEvent = requestType.slice(19);
+          return request.getRouter().playbackController(playbackControllerEvent);
+        } else if ('Display.ElementSelected' === requestType) {
+          return request.getRouter().displayElementSelected();
+        } else if (typeof self.requestHandlers[requestType] === 'function') {
+          return request.getRouter().custom(requestType);
+        } else {
+          throw 'INVALID_REQUEST_TYPE';
         }
-        return prePromise;
-      }).then(function() {
-        requestType = request.type();
-        if (!response.resolved) {
-          if ("IntentRequest" === requestType) {
-            var intent = request_json.request.intent.name;
-            if (typeof self.intents[intent] !== "undefined" && typeof self.intents[intent].handler === "function") {
-              if (self.intents[intent].isDelegatedDialog() && !request.getDialog().isCompleted()) {
-                return Promise.resolve(request.getDialog().handleDialogDelegation(request, response));
-              } else {
-                return Promise.resolve(self.intents[intent].handler(request, response));
-              }
-            } else {
-              throw "NO_INTENT_FOUND";
-            }
-          } else if ("LaunchRequest" === requestType) {
-            if (typeof self.launchFunc == "function") {
-              return Promise.resolve(self.launchFunc(request, response));
-            } else {
-              throw "NO_LAUNCH_FUNCTION";
-            }
-          } else if ("SessionEndedRequest" === requestType) {
-            if (typeof self.sessionEndedFunc == "function") {
-              return Promise.resolve(self.sessionEndedFunc(request, response));
-            }
-          } else if (request.isAudioPlayer()) {
-            var event = requestType.slice(12);
-            var eventHandlerObject = self.audioPlayerEventHandlers[event];
-            if (typeof eventHandlerObject != "undefined" && typeof eventHandlerObject["function"] == "function") {
-              return Promise.resolve(eventHandlerObject["function"](request, response));
-            }
-          } else if (request.isPlaybackController()) {
-            var playbackControllerEvent = requestType.slice(19);
-            var playbackEventHandlerObject = self.playbackControllerEventHandlers[playbackControllerEvent];
-            if (typeof playbackEventHandlerObject != "undefined" && typeof playbackEventHandlerObject["function"] == "function") {
-              return Promise.resolve(playbackEventHandlerObject["function"](request, response));
-            }
-          } else if ("Display.ElementSelected" === requestType) {
-            if (typeof self.displayElementSelectedFunc === "function") {
-              return Promise.resolve(self.displayElementSelectedFunc(request, response));
-            } else {
-              throw "NO_DISPLAY_ELEMENT_SELECTED_FUNCTION";
-            }
-          } else if (typeof self.requestHandlers[requestType] === "function") {
-            return Promise.resolve(self.requestHandlers[requestType](request, response, request_json));
-          } else {
-            throw "INVALID_REQUEST_TYPE";
-          }
-        }
-      })
+      }
+    })
       .then(function() {
         return response.send();
       })
       .catch(function(e) {
-        if (typeof self.error == "function") {
+        if (typeof self.error == 'function') {
           // Default behavior of any error handler is to send a response
           return Promise.resolve(self.error(e, request, response)).then(function() {
             if (!response.resolved) {
@@ -638,7 +673,7 @@ alexa.app = function(name) {
             // propagate successful response if it's already been resolved
             return response.response;
           });
-        } else if (typeof e == "string" && self.messages[e]) {
+        } else if (typeof e == 'string' && self.messages[e]) {
           if (!request.isAudioPlayer()) {
             response.say(self.messages[e]);
             return response.send(e);
@@ -648,11 +683,11 @@ alexa.app = function(name) {
         }
         if (!response.resolved) {
           if (e.message) {
-            return response.fail("Unhandled exception: " + e.message + ".", e);
-          } else if (typeof e == "string") {
-            return response.fail("Unhandled exception: " + e + ".", e);
+            return response.fail('Unhandled exception: ' + e.message + '.', e);
+          } else if (typeof e == 'string') {
+            return response.fail('Unhandled exception: ' + e + '.', e);
           } else {
-            return response.fail("Unhandled exception.", e);
+            return response.fail('Unhandled exception.', e);
           }
         }
         throw e;
@@ -661,15 +696,15 @@ alexa.app = function(name) {
 
   var skillBuilderSchema = function() {
     var schema = {
-        "intents": [],
-        "types": []
+        'intents': [],
+        'types': []
       },
       intentName, intent, key;
     for (intentName in self.intents) {
       intent = self.intents[intentName];
       var intentSchema = {
-        "name": intent.name,
-        "samples": []
+        'name': intent.name,
+        'samples': []
       };
       if (intent.utterances && intent.utterances.length > 0) {
         intent.utterances.forEach(function(sample) {
@@ -683,11 +718,11 @@ alexa.app = function(name) {
         });
       }
       if (intent.slots && Object.keys(intent.slots).length > 0) {
-        intentSchema["slots"] = [];
+        intentSchema['slots'] = [];
         for (key in intent.slots) {
           const slot = intent.slots[key];
           const type = slot.type ? slot.type : slot;
-          const samples = [];
+          const samples = slot.type ? slot.samples : [];
           if (slot.samples) {
             slot.samples.forEach(function(sample) {
               var list = AlexaUtterances(
@@ -720,10 +755,10 @@ alexa.app = function(name) {
       var values = self.customSlots[slotName];
       values.forEach(function(value) {
         var valueSchema = {
-          "id": value.id,
-          "name": {
-            "value": value.value,
-            "synonyms": value.synonyms
+          'id': value.id,
+          'name': {
+            'value': value.value,
+            'synonyms': value.synonyms
           }
         };
         slotSchema.values.push(valueSchema);
@@ -737,24 +772,24 @@ alexa.app = function(name) {
   this.schemas = {
     intent: function() {
       var schema = {
-          "intents": []
+          'intents': []
         },
         intentName, intent, key;
       for (intentName in self.intents) {
         intent = self.intents[intentName];
         var intentSchema = {
-          "intent": intent.name
+          'intent': intent.name
         };
         if (intent.slots && Object.keys(intent.slots).length > 0) {
-          intentSchema["slots"] = [];
+          intentSchema['slots'] = [];
           for (key in intent.slots) {
             const slot = intent.slots[key];
             const type = slot.type ? slot.type : slot;
             const samples = slot.type ? slot.samples : [];
             intentSchema.slots.push({
-              "name": key,
-              "type": type,
-              "samples": samples
+              name: key,
+              type,
+              samples
             });
           }
         }
@@ -811,7 +846,7 @@ alexa.app = function(name) {
         prompts: {},
         slots: []
       };
-      
+
       if (intent.prompts) {
         var intentConfirmPromptId = "Confirm.Intent." + schema.prompts.length;
         schema.prompts.push(creatPrompt(intentConfirmPromptId, intent.prompts));
@@ -864,7 +899,7 @@ alexa.app = function(name) {
   this.utterances = function() {
     var intentName,
       intent,
-      out = "";
+      out = '';
     for (intentName in self.intents) {
       intent = self.intents[intentName];
       if (intent.utterances) {
@@ -874,7 +909,7 @@ alexa.app = function(name) {
             self.dictionary,
             self.exhaustiveUtterances);
           list.forEach(function(utterance) {
-            out += intent.name + " " + (utterance.replace(/\s+/g, " ")).trim() + "\n";
+            out += intent.name + ' ' + (utterance.replace(/\s+/g, ' ')).trim() + '\n';
           });
         });
       }
@@ -911,11 +946,11 @@ alexa.app = function(name) {
   // @returns this
   this.express = function(options) {
     if (!options.expressApp && !options.router) {
-      throw new Error("You must specify an express app or an express router to attach to.");
+      throw new Error('You must specify an express app or an express router to attach to.');
     }
 
     var defaultOptions = {
-      endpoint: "/" + self.name,
+      endpoint: '/' + self.name,
       checkCert: true,
       debug: false
     };
@@ -929,7 +964,7 @@ alexa.app = function(name) {
 
     if (deprecated) {
       options.expressApp.use(normalizeApiPath(options.endpoint), options.router);
-      console.warn("Usage deprecated: Both 'expressApp' and 'router' are specified.\nMore details on https://github.com/alexa-js/alexa-app/blob/master/UPGRADING.md");
+      console.warn('Usage deprecated: Both \'expressApp\' and \'router\' are specified.\nMore details on https://github.com/alexa-js/alexa-app/blob/master/UPGRADING.md');
     }
 
     if (options.debug) {
@@ -937,15 +972,15 @@ alexa.app = function(name) {
         var schemaName = req.query['schemaType'] || 'intent';
         var schema = self.schemas[schemaName] || function() {};
 
-        if (typeof req.query['schema'] != "undefined") {
+        if (typeof req.query['schema'] != 'undefined') {
           res.set('Content-Type', 'text/plain').send(schema());
-        } else if (typeof req.query['utterances'] != "undefined") {
+        } else if (typeof req.query['utterances'] != 'undefined') {
           res.set('Content-Type', 'text/plain').send(self.utterances());
         } else {
-          res.render("test", {
-            "app": self,
-            "schema": schema(),
-            "utterances": self.utterances()
+          res.render('test', {
+            'app': self,
+            'schema': schema(),
+            'utterances': self.utterances()
           });
         }
       });
@@ -962,7 +997,7 @@ alexa.app = function(name) {
       var json = req.body,
         response_json;
       // preRequest and postRequest may return altered request JSON, or undefined, or a Promise
-      Promise.resolve(typeof options.preRequest == "function" ? options.preRequest(json, req, res) : json)
+      Promise.resolve(typeof options.preRequest == 'function' ? options.preRequest(json, req, res) : json)
         .then(function(json_new) {
           if (json_new) {
             json = json_new;
@@ -972,7 +1007,7 @@ alexa.app = function(name) {
         .then(self.request)
         .then(function(app_response_json) {
           response_json = app_response_json;
-          return Promise.resolve(typeof options.postRequest == "function" ? options.postRequest(app_response_json, req, res) : app_response_json);
+          return Promise.resolve(typeof options.postRequest == 'function' ? options.postRequest(app_response_json, req, res) : app_response_json);
         })
         .then(function(response_json_new) {
           response_json = response_json_new || response_json;
@@ -980,7 +1015,7 @@ alexa.app = function(name) {
         })
         .catch(function(err) {
           console.error(err);
-          res.status(500).send("Server Error");
+          res.status(500).send('Server Error');
         });
     });
 

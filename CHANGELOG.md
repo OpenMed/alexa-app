@@ -1,12 +1,20 @@
 ## Changelog
 
-### 4.2.3 (Next)
+### 5.0.0 (Next)
+
+* [#394](https://github.com/alexa-js/alexa-app/pull/394): Upgrade development environment - [@favna](https://github.com/favna).
+* [#388](https://github.com/alexa-js/alexa-app/pull/388): Updating typings for values of AuthorityResolution - [@camerongraybill](https://github.com/camerongraybill).
+
+### 4.2.3 (October 28, 2018)
 
 * [#344](https://github.com/alexa-js/alexa-app/pull/344): Add coveralls as a check for pull requests - [@kobim](https://github.com/kobim).
 * [#352](https://github.com/alexa-js/alexa-app/pull/352): Allow utterance expansion in custom slot type synonyms - [@daanzu](https://github.com/daanzu).
 * [#361](https://github.com/alexa-js/alexa-app/pull/361): Fix object reference for dialogState in in doc - [@Sephtenen](https://github.com/Sephtenen).
 * [#364](https://github.com/alexa-js/alexa-app/pull/364): Fix reprompt() to concatenate multiple SSML prompts - [@andrewjhunt](https://github.com/andrewjhunt).
 * [#366](https://github.com/alexa-js/alexa-app/pull/358): Add support for including samples in slots and intents for confirmations - [@fabien88](https://github.com/fabien88).
+* [#371](https://github.com/alexa-js/alexa-app/pull/371): Call response.prepare() after post() - [@fremail](https://github.com/fremail).
+* [#373](https://github.com/alexa-js/alexa-app/pull/373): Keep multiple newlines in card output - [@kielni](https://github.com/kielni) and [@fremail](https://github.com/fremail).
+* [#374](https://github.com/alexa-js/alexa-app/pull/374): Added Router - [@fremail](https://github.com/fremail).
 * Your contribution here.
 
 ### 4.2.2 (April 7, 2018)
