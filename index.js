@@ -722,7 +722,7 @@ alexa.app = function(name) {
         for (key in intent.slots) {
           const slot = intent.slots[key];
           const type = slot.type ? slot.type : slot;
-          const samples = slot.type ? slot.samples : [];
+          const samples = [];
           if (slot.samples) {
             slot.samples.forEach(function(sample) {
               var list = AlexaUtterances(
